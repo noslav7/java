@@ -38,7 +38,7 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(JwtException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected SimpleMessage handleJwtException(JwtException exception) {
         return new SimpleMessage(exception.getMessage());
     }
