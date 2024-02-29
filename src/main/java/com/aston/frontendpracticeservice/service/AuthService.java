@@ -8,8 +8,8 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Service
@@ -20,7 +20,7 @@ public class AuthService {
 
     private final JwtService jwtService;
 
-    private final Map<String, String> refreshStorage = new HashMap<>();
+    private final Map<String, String> refreshStorage = new ConcurrentHashMap<>();
 
     public JwtResponse authAndGetToken(AuthRequest authRequest) {
         final User user = userService.findByLogin(authRequest.login());

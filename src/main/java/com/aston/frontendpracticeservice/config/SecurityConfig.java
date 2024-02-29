@@ -25,12 +25,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(
-                        authz -> authz
-                                .requestMatchers("/frontend-practice/auth/login",
-                                        "/frontend-practice/auth/refresh",
-                                        "/frontend-practice/websocket",
-                                        "/frontend-practice/images").permitAll()
-                                .anyRequest().authenticated()
+                        authz -> authz.anyRequest().permitAll()
                                 .and()
                                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 ).build();

@@ -8,7 +8,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -25,11 +24,17 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${auth.access_token_life_seconds}")
+    private Long accessTokenLifeInSeconds;
+
+    @Value("${auth.refresh_token_life_seconds}")
+    private Long refreshTokenLifeInSeconds;
+
     public String generateAccessToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
 
         final Instant accessExpirationInstant =
-                now.plusMinutes(5)
+                now.plusSeconds(accessTokenLifeInSeconds)
                         .atZone(ZoneId.systemDefault())
                         .toInstant();
 
@@ -48,7 +53,7 @@ public class JwtService {
         final LocalDateTime now = LocalDateTime.now();
 
         final Instant refreshExpirationInstant =
-                now.plusDays(30)
+                now.plusSeconds(refreshTokenLifeInSeconds)
                         .atZone(ZoneId.systemDefault())
                         .toInstant();
 
