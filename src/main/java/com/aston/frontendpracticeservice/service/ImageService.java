@@ -16,7 +16,7 @@ import java.nio.file.Path;
 @Slf4j
 public class ImageService {
 
-    private static final Path IMAGE_PATH = Path.of("src/main/resources/static/Aston_logo.png");
+    private static final Path IMAGE_PATH = Path.of("target/classes/static/Aston_logo.png");
 
     public SimpleMessage uploadImage(MultipartFile multipartFile) {
         if (multipartFile.getContentType() == null) {
