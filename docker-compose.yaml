@@ -5,7 +5,7 @@ services:
     container_name: $CI_PROJECT_NAME
     image: $AND_DOCKER_REGISTRY_NAME/$PROGECT-$APP:$CI_COMMIT_SHA
     ports:
-      - 9002:9002
+      - 9002:8080
     restart: always
     volumes:
       - /logs/credit:/logs

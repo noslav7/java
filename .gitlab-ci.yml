@@ -19,7 +19,7 @@ build:
   before_script:
     - echo "$AND_DOCKER_REGISTRY_RW_PASS" | docker login -u "${AND_REGESTRY_USER_RW}" "$AND_DOCKER_REGISTRY_NAME" --password-stdin
   script:
-    - docker build --tag $AND_DOCKER_REGISTRY_NAME/$PROGECT-$APP:$CI_COMMIT_SHA -f ./docker/Dockerfile --build-arg BUILDKIT_INLINE_CACHE=1 .
+    - docker build --tag $AND_DOCKER_REGISTRY_NAME/$PROGECT-$APP:$CI_COMMIT_SHA -f ./Dockerfile --build-arg BUILDKIT_INLINE_CACHE=1 .
     - docker push $AND_DOCKER_REGISTRY_NAME/$PROGECT-$APP:$CI_COMMIT_SHA
   only:
     - main
