@@ -3,7 +3,13 @@ package com.aston.frontendpracticeservice.service;
 import com.aston.frontendpracticeservice.domain.entity.User;
 import com.aston.frontendpracticeservice.security.JwtAuthentication;
 import com.aston.frontendpracticeservice.security.Role;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.NonNull;
@@ -44,7 +50,7 @@ public class JwtService {
                 .setSubject(user.getLogin())
                 .setExpiration(accessExpiration)
                 .signWith(getSignKey())
-                .claim("roles", user.getRoles())
+                .claim("role", user.getRole())
                 .claim("login", user.getLogin())
                 .compact();
     }
@@ -109,7 +115,7 @@ public class JwtService {
 
     public JwtAuthentication generate(Claims claims) {
         String login = claims.getSubject();
-        Set<Role> roles = claims.get("roles", Set.class);
+        Set<Role> roles = claims.get("role", Set.class);
         new JwtAuthentication(true, login, roles);
         return null;
     }
