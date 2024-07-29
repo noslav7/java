@@ -1,3 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: db/migration/V20240719__init_table_user.sql

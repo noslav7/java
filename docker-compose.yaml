@@ -1,35 +1,11 @@
-version: "3.9"
+version: "3"
 
 services:
-  postgres_db:
-    image: 'postgres:15.1-alpine'
-    container_name: postgres_db
-    environment:
-        SPRING_DATASOURCE_HOST: localhost
-        SPRING_DATASOURCE_PORT: 5432
-        SPRING_DATASOURCE_DATABASE: credit-service
-        SPRING_DATASOURCE_USERNAME: postgres
-        SPRING_DATASOURCE_PASSWORD: postgres
-        POSTGRES_PASSWORD: example
-    ports:
-      - "5433:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
   credit-service:
-    container_name: credit-service
-    build:
-      context: .
-      dockerfile: Dockerfile
+    container_name: $CI_PROJECT_NAME
+    image: $AND_DOCKER_REGISTRY_NAME/$PROGECT-$APP:$CI_COMMIT_SHA
     ports:
-      - "9002:8080"
-    depends_on:
-      - postgres_db
-    environment:
-      SPRING_DATASOURCE_HOST: localhost
-      SPRING_DATASOURCE_PORT: 5432
-      SPRING_DATASOURCE_DATABASE: credit-service
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      - 9002:8080
     restart: always
     volumes:
       - /logs/credit:/logs
