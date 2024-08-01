@@ -1,6 +1,5 @@
 package com.aston.frontendpracticeservice.domain.entity;
 
-import com.aston.frontendpracticeservice.security.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
@@ -8,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,9 +23,11 @@ public class User {
     private Long id;
 
     @Column(name = "first_name", nullable = false)
+    @NotBlank(message = "First name must not be blank")
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
+    @NotBlank(message = "Last name must not be blank")
     private String lastName;
 
     @Past
@@ -52,6 +52,4 @@ public class User {
     @NotBlank
     @Size(min = 8)
     private String password;
-
-    private Set<Role> roles;
 }

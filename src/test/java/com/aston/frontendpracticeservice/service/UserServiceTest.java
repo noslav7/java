@@ -1,8 +1,10 @@
 package com.aston.frontendpracticeservice.service;
 
 import com.aston.frontendpracticeservice.domain.entity.User;
-import com.aston.frontendpracticeservice.repository.UserRepositoryJPA;
-import jakarta.validation.*;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @SpringBootTest
@@ -32,37 +36,15 @@ public class UserServiceTest {
             .withPassword("postgres");
 
     @Autowired
-    private UserRepositoryJPA userRepositoryJPA;
-
-    @Autowired
     private UserService userService;
 
     private Validator validator;
 
     @BeforeEach
     void setUp() {
-        userRepositoryJPA.deleteAll();
+        userService.findAll().forEach(user -> userService.deleteById(user.getId())); // clear database before each test
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-    }
-
-    @Test
-    void testValidUserCreation() {
-        User user = new User();
-                user.setFirstName("John");
-                user.setLastName("Doe");
-                user.setDateOfBirth(LocalDate.of(1990, 1, 1));
-                user.setInn("123456789012");
-                user.setSnils("12345678901");
-                user.setPassportNumber("1234567890");
-                user.setLogin("validuser");
-                user.setPassword("validpassword");
-                user.setRoles(Set.of());
-
-        System.out.println("User before saving: " + user);
-        userRepositoryJPA.save(user);
-        User foundUser = userService.findByLogin("validuser");
-        assertEquals("validuser", foundUser.getLogin());
     }
 
     @Test
@@ -76,7 +58,6 @@ public class UserServiceTest {
                 .inn("123")
                 .snils("12345678901")
                 .passportNumber("1234567890")
-                .roles(Set.of())
                 .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -95,7 +76,6 @@ public class UserServiceTest {
                 .inn("123456789012")
                 .snils("123456789012345")
                 .passportNumber("1234567890")
-                .roles(Set.of())
                 .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -114,7 +94,6 @@ public class UserServiceTest {
                 .inn("123456789012")
                 .snils("12345678901")
                 .passportNumber("1234567890")
-                .roles(Set.of())
                 .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -132,12 +111,11 @@ public class UserServiceTest {
                 .inn("123456789012")
                 .snils("12345678901")
                 .passportNumber("1234567890")
-                .roles(Set.of())
                 .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertEquals(1, violations.size());
-        assertEquals("must not be blank", violations.iterator().next().getMessage());
+        assertEquals("First name must not be blank", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -150,7 +128,6 @@ public class UserServiceTest {
                 .inn("123456789012")
                 .snils("12345678901")
                 .passportNumber("1234567890")
-                .roles(Set.of())
                 .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -169,7 +146,6 @@ public class UserServiceTest {
                 .passportNumber("1234567890")
                 .login("user1")
                 .password("password1")
-                .roles(Set.of())
                 .build();
 
         User user2 = User.builder()
@@ -181,15 +157,89 @@ public class UserServiceTest {
                 .inn("234567890123")
                 .snils("23456789012")
                 .passportNumber("2345678901")
-                .roles(Set.of())
                 .build();
 
-        System.out.println("User before saving: " + user1);
-        System.out.println("User before saving: " + user2);
-        userRepositoryJPA.save(user1);
-        userRepositoryJPA.save(user2);
+        userService.save(user1);
+        userService.save(user2);
 
         assertEquals(2, userService.findAll().size());
+    }
+
+    @Test
+    void testFindById() {
+        User user = User.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .inn("123456789012")
+                .snils("12345678901")
+                .passportNumber("1234567890")
+                .login("user1")
+                .password("password1")
+                .build();
+
+        userService.save(user);
+        Optional<User> foundUser = userService.findById(user.getId());
+
+        assertTrue(foundUser.isPresent());
+        assertEquals(user.getLogin(), foundUser.get().getLogin());
+    }
+
+    @Test
+    void testFindByLogin() {
+        User user = User.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .inn("123456789012")
+                .snils("12345678901")
+                .passportNumber("1234567890")
+                .login("user1")
+                .password("password1")
+                .build();
+
+        userService.save(user);
+        Optional<User> foundUser = userService.findByLogin(user.getLogin());
+
+        assertTrue(foundUser.isPresent());
+        assertEquals(user.getFirstName(), foundUser.get().getFirstName());
+    }
+
+    @Test
+    void testDeleteById() {
+        User user = User.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .inn("123456789012")
+                .snils("12345678901")
+                .passportNumber("1234567890")
+                .login("user1")
+                .password("password1")
+                .build();
+
+        userService.save(user);
+        userService.deleteById(user.getId());
+
+        Optional<User> foundUser = userService.findById(user.getId());
+        assertTrue(foundUser.isEmpty());
+    }
+
+    @Test
+    void testExistsById() {
+        User user = User.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .inn("123456789012")
+                .snils("12345678901")
+                .passportNumber("1234567890")
+                .login("user1")
+                .password("password1")
+                .build();
+
+        userService.save(user);
+        assertTrue(userService.existsById(user.getId()));
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
